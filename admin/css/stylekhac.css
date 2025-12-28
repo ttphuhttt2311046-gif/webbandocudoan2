@@ -1,0 +1,23 @@
+table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        td, th {
+            padding: 10px;
+        }
+        .btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 3px;
+        }
+        .btn-hide { background: #ff9800; color: white; }
+        .btn-show { background: #4caf50; color: white; }
+        .btn-del { background: red; color: white; }
