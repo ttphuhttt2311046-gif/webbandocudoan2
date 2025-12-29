@@ -15,7 +15,7 @@ $sessionTimeout = 1200;
 if (!isset($_SESSION['last_visit']) || time() - $_SESSION['last_visit'] > $sessionTimeout) {
 
     // Tăng lượt truy cập
-    $conn->query("UPDATE counter SET total = total + 1 WHERE id = 1");
+$conn->query("UPDATE counter SET total = total + 1 WHERE id = 1");
 }
 
 $_SESSION['last_visit'] = time();
