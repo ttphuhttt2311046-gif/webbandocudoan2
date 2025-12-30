@@ -498,3 +498,17 @@ input[type=text], input[type=number], input[type=password], textarea { width:100
     background-color: #007bff;
     color: #fff;
 }
+/* 🔴 Micro tìm kiếm giọng nói */
+.btn-mic {
+    background-color: rgb(31, 211, 94) !important;
+    color: #fff !important;
+    border: none !important;
+    width: 38px !important;
+    height: 38px !important;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
