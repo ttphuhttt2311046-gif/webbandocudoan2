@@ -98,12 +98,14 @@ if ($action === 'update-ajax' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // THANH TOÁN - LƯU ĐƠN HÀNG + CHI TIẾT (giữ từ CODE CŨ, bao gồm notify seller)
 // =========================
 if ($action === 'checkout') {
-    if (!isset($_SESSION['user_id'])) {
-        echo "<script>alert('Vui lòng đăng nhập trước khi thanh toán!'); window.location='admin/login.php';</script>";
-        exit;
-    }
+    if (isset($_SESSION['checkout_lock'])) {
+    echo "<script>alert('Đơn hàng đang được xử lý, vui lòng chờ!'); window.location='index.php';</script>";
+    exit;
+}
+$_SESSION['checkout_lock'] = true;
 
     if (empty($_SESSION['cart'])) {
+        unset($_SESSION['checkout_lock']);
         echo "<script>alert('Giỏ hàng trống!'); window.location='index.php';</script>";
         exit;
     }
@@ -138,7 +140,7 @@ if ($action === 'checkout') {
             $id = intval($item['id']);
             $qty = intval($item['qty']);
             $gia = floatval($item['price']);
-
+			
             // Lấy thông tin sản phẩm (cập nhật lại tồn kho và lấy seller)
             $seller_stmt = $conn->prepare("SELECT maNguoiBan, soLuong FROM sanpham WHERE maSanPham = ? FOR UPDATE");
             $seller_stmt->bind_param("i", $id);
@@ -149,10 +151,9 @@ if ($action === 'checkout') {
             if (!$prod_info) {
                 throw new Exception("Sản phẩm #{$id} không tồn tại.");
             }
-
             $maNguoiBan = intval($prod_info['maNguoiBan'] ?? 0);
             $soLuongTon = intval($prod_info['soLuong']);
-
+			$dsNguoiBan[$maNguoiBan] = true;
             if ($qty > $soLuongTon) {
                 throw new Exception("Số lượng sản phẩm #{$id} vượt quá tồn kho (còn {$soLuongTon}).");
             }
@@ -177,53 +178,47 @@ if ($action === 'checkout') {
                 throw new Exception("Lỗi cập nhật tồn kho: " . $update->error);
             }
             $update->close();
-
-            // Gửi thông báo tới người bán (thông báo chung)
-            $thongbao = $conn->prepare("INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai) VALUES (?, ?, ?, 'chua_xem')");
-            $noiDung = "Bạn có đơn hàng mới #" . $maDonHang;
-            $maNguoiGui = $maNguoiMua;
-            $thongbao->bind_param("sii", $noiDung, $maNguoiGui, $maNguoiBan);
-            if (!$thongbao->execute()) {
-                $thongbao->close();
-                throw new Exception("Lỗi gửi thông báo: " . $thongbao->error);
-            }
-            $thongbao->close();
-
-            // Gửi tin nhắn chi tiết từng sản phẩm
-            // Lấy thông tin người mua
-			$nguoiMuaTen   = $_SESSION['tenNguoiDung'] ?? 'Khách hàng';
-			$emailNguoiMua = $_SESSION['email'] ?? '';
-			$noiDungCT =
-			"ĐƠN HÀNG MỚI\n".
-			"Người mua: {$nguoiMuaTen}\n".
-			"Email: {$emailNguoiMua}\n".
-            "Tổng tiền: ".number_format($tongTien,0,',','.')." VNĐ\n".
-			"Mã đơn hàng: #{$maDonHang}";
-			$chitiet = $conn->prepare("
-                INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)
-                VALUES (?, ?, ?, 'chua_xem')
-            ");
-            $chitiet->bind_param("sii", $noiDungCT, $maNguoiGui, $maNguoiBan);
-            if (!$chitiet->execute()) {
-                $chitiet->close();
-                throw new Exception("Lỗi gửi tin nhắn chi tiết: " . $chitiet->error);
-            }
-            $chitiet->close();
         }
-		$stmtTB = $conn->prepare("INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)VALUES (?, ?, ?, 'chua_xem')");
-		foreach (array_keys($dsNguoiBan) as $maNguoiBan) {
-    	$stmtTB->bind_param("sii", $noiDungCT, $maNguoiMua, $maNguoiBan);
-    	$stmtTB->execute();}
-		$stmtTB->close();
-        
-		$stmt = $conn->prepare("INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)VALUES (?, ?, ?, 'da_xem')");
-		$stmt->bind_param("sii", $noiDungBuyer, $maNguoiBan, $maNguoiMua);
-		$stmt->execute();
-		$stmt->close();
-        
         // Commit transaction
         $conn->commit();
+		/* =========================
+  		 GỬI TIN NHẮN SAU COMMIT
+  			 ========================= */
 
+		// ===== GỬI 1 TIN DUY NHẤT CHO MỖI NGƯỜI BÁN =====
+		$nguoiMuaTen   = $_SESSION['tenNguoiDung'] ?? 'Khách hàng';
+		$emailNguoiMua = $_SESSION['email'] ?? '';
+		$noiDungSeller =
+		"ĐƠN HÀNG MỚI\n".
+		"Người mua: {$nguoiMuaTen}\n".
+		"Email: {$emailNguoiMua}\n".
+		"Tổng tiền: ".number_format($tongTien,0,',','.')." VNĐ\n".
+		"Mã đơn hàng: #{$maDonHang}";
+
+		$stmtSeller = $conn->prepare("
+    		INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)
+    		VALUES (?, ?, ?, 'chua_xem')");
+
+		foreach (array_keys($dsNguoiBan) as $maNguoiBan) {
+    	$stmtSeller->bind_param("sii", $noiDungSeller, $maNguoiMua, $maNguoiBan);
+    	$stmtSeller->execute();
+		}
+		$stmtSeller->close();
+
+		// ===== GỬI 1 TIN CHO NGƯỜI MUA =====
+		$noiDungBuyer =
+		"Bạn đã đặt đơn hàng thành công!\n".
+		"Mã đơn hàng: #{$maDonHang}\n".
+		"Tổng tiền: ".number_format($tongTien,0,',','.')." VNĐ";
+
+		$stmtBuyer = $conn->prepare("
+    		INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)
+    		VALUES (?, ?, ?, 'da_xem')");
+		$maNguoiGui = $maNguoiMua;
+		$stmtBuyer->bind_param("sii", $noiDungBuyer, $maNguoiGui, $maNguoiMua);
+		$stmtBuyer->execute();
+		$stmtBuyer->close();
+unset($_SESSION['checkout_lock']);
         // Xóa giỏ hàng
         $_SESSION['cart'] = [];
 
@@ -232,6 +227,7 @@ if ($action === 'checkout') {
     } catch (Exception $e) {
         // Rollback nếu lỗi
         $conn->rollback();
+         unset($_SESSION['checkout_lock']);
         // Hiện lỗi (có thể thay bằng log)
         $err = htmlspecialchars($e->getMessage());
         echo "<script>alert('Lỗi khi lưu đơn hàng: {$err}'); window.location='cart.php';</script>";
@@ -252,7 +248,16 @@ if ($action === 'checkout') {
     <div class="container">
       <h1><a href="index.php">Shop Đồ Cũ</a></h1>
       <div class="nav">
-        <a href="cart.php">Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'qty')) : 0; ?>)</a>
+        <?php
+$cartCount = 0;
+if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $c) {
+        $cartCount += $c['qty'] ?? 0;
+    }
+}
+?>
+<a href="cart.php">Giỏ hàng (<?php echo $cartCount; ?>)</a>
+
         <?php if (isset($_SESSION['user_id'])): ?>
             <?php if (isset($_SESSION['vaitro']) && ($_SESSION['vaitro'] === 'seller' || $_SESSION['vaitro'] === 'admin')): ?>
                 <a href="admin/index.php">Quản lý sản phẩm</a>
