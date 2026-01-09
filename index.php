@@ -100,12 +100,7 @@ if ($cats && $cats->num_rows > 0) {
 }
 ?>
 </div>
-
-<!-- 🔹 SẢN PHẨM -->
-<div class="grid">
   <?php include "phantrang.php"; ?>
-</div>
-
 </main>
 
 <footer class="footer">
@@ -137,6 +132,124 @@ function startVoice() {
     recognition.start();
 }
 </script>
+  <?php if (isset($_SESSION['user_id'])): ?>
+<div id="chat-toggle" onclick="toggleChat()">💬</div>
+<div id="chat-popup">
+    <div id="chat-header">
+        <span>💬 Trò chuyện</span>
+        <button onclick="toggleChat()">✖</button>
+    </div>
+    <div id="chat-body">
+        <select id="chat-user">
+            <option value="">-- Chọn người để chat --</option>
+            <?php
+            $me = $_SESSION['user_id'];
+            $users = $conn->query("SELECT maTaiKhoan, tenDangNhap, vaitro FROM taikhoan WHERE maTaiKhoan <> $me ORDER BY tenDangNhap ASC");
+            while ($u = $users->fetch_assoc()) {
+                echo "<option value='{$u['maTaiKhoan']}'>{$u['tenDangNhap']} ({$u['vaitro']})</option>";
+            }
+            ?>
+        </select>
+        <div id="chat-messages"></div>
+        <div id="chat-input">
+            <input type="text" id="chat-text" placeholder="Nhập tin nhắn...">
+            <button onclick="sendMsg()">Gửi</button>
+        </div>
+    </div>
+</div>
+<script>
+let chatBox = document.getElementById("chat-popup");
+let currentUser = null;
 
+function toggleChat(){
+    chatBox.style.display = chatBox.style.display === "block" ? "none" : "block";
+}
+
+document.getElementById("chat-user").addEventListener("change", function(){
+    currentUser = this.value;
+    if (currentUser) loadMessages();
+});
+
+function loadMessages(){
+    if (!currentUser) return;
+    fetch("msg_load.php?to=" + currentUser)
+    .then(r => r.text())
+    .then(html => {
+        document.getElementById("chat-messages").innerHTML = html;
+        let cm = document.getElementById("chat-messages");
+        cm.scrollTop = cm.scrollHeight;
+    });
+}
+
+function sendMsg(){
+    if (!currentUser) return alert("Chọn người cần chat!");
+    let msg = document.getElementById("chat-text").value.trim();
+    if (msg === "") return;
+    fetch("msg_send.php", {
+        method: "POST",
+        headers: {"Content-Type":"application/x-www-form-urlencoded"},
+        body: "receiver_id=" + encodeURIComponent(currentUser) + "&message=" + encodeURIComponent(msg)
+    })
+    .then(r=>r.json())
+    .then(j=>{
+        if (j.success){
+            document.getElementById("chat-text").value="";
+            loadMessages();
+        } else alert("Lỗi: "+j.error);
+    });
+}
+
+setInterval(() => { if (currentUser) loadMessages(); }, 3000);
+setInterval(checkNewMessages, 3000);
+
+function checkNewMessages(){
+    fetch("check_new_messages.php")
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return;
+        
+        // Xóa chấm cũ
+        document.querySelectorAll("#chat-user option").forEach(o => {
+            o.textContent = o.textContent.replace(" 🔴", "");
+        });
+
+        // Đánh dấu người gửi có tin mới
+        data.unread.forEach(uid => {
+            let opt = document.querySelector(`#chat-user option[value='${uid}']`);
+            if (opt) opt.textContent = opt.textContent.replace(" 🔴", "") + " 🔴";
+        });
+        // 🧩 Đưa người có tin nhắn mới lên đầu danh sách
+        const select = document.getElementById("chat-user");
+        data.unread.slice().reverse().forEach(uid => {
+        const opt = select.querySelector(`option[value='${uid}']`);
+        if (opt) {
+        // Di chuyển option này lên ngay sau option đầu tiên (mục "-- Chọn người để chat --")
+        select.insertBefore(opt, select.options[1]);
+    }
+});
+        // Hiện chấm đỏ ở biểu tượng 💬 nếu có tin mới
+        const dotId = "chat-dot";
+        let dot = document.getElementById(dotId);
+        if (data.unread.length > 0 && chatBox.style.display !== "block") {
+            if (!dot) {
+                dot = document.createElement("div");
+                dot.id = dotId;
+                dot.style.position = "absolute";
+                dot.style.top = "6px";
+                dot.style.right = "6px";
+                dot.style.width = "10px";
+                dot.style.height = "10px";
+                dot.style.background = "red";
+                dot.style.borderRadius = "50%";
+                dot.style.border = "2px solid white";
+                document.getElementById("chat-toggle").appendChild(dot);
+            }
+        } else if (dot) {
+            dot.remove();
+        }
+    });
+}
+</script>
+<?php endif; ?>
 </body>
 </html>

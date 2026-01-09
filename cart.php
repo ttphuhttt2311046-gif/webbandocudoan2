@@ -133,6 +133,7 @@ if ($action === 'checkout') {
         $stmt->close();
 
         // Thêm chi tiết đơn hàng, trừ tồn, gửi thông báo
+        $dsNguoiBan = [];
         foreach ($_SESSION['cart'] as $item) {
             $id = intval($item['id']);
             $qty = intval($item['qty']);
@@ -189,14 +190,16 @@ if ($action === 'checkout') {
             $thongbao->close();
 
             // Gửi tin nhắn chi tiết từng sản phẩm
-            $nguoiMua = $_SESSION['tenNguoiDung'] ?? 'Khách hàng';
-            $noiDungCT = "
-            📦 <b>{$nguoiMua}</b> vừa đặt <b>{$qty}</b> sản phẩm <b>“{$item['name']}”</b><br>
-            💰 Đơn giá: " . number_format($gia, 0, ',', '.') . "₫<br>
-            🧮 Tổng: <b>" . number_format($qty * $gia, 0, ',', '.') . "₫</b><br>
-            🧾 Mã đơn: #{$maDonHang}
-            ";
-            $chitiet = $conn->prepare("
+            // Lấy thông tin người mua
+			$nguoiMuaTen   = $_SESSION['tenNguoiDung'] ?? 'Khách hàng';
+			$emailNguoiMua = $_SESSION['email'] ?? '';
+			$noiDungCT =
+			"ĐƠN HÀNG MỚI\n".
+			"Người mua: {$nguoiMuaTen}\n".
+			"Email: {$emailNguoiMua}\n".
+            "Tổng tiền: ".number_format($tongTien,0,',','.')." VNĐ\n".
+			"Mã đơn hàng: #{$maDonHang}";
+			$chitiet = $conn->prepare("
                 INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)
                 VALUES (?, ?, ?, 'chua_xem')
             ");
@@ -207,7 +210,17 @@ if ($action === 'checkout') {
             }
             $chitiet->close();
         }
-
+		$stmtTB = $conn->prepare("INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)VALUES (?, ?, ?, 'chua_xem')");
+		foreach (array_keys($dsNguoiBan) as $maNguoiBan) {
+    	$stmtTB->bind_param("sii", $noiDungCT, $maNguoiMua, $maNguoiBan);
+    	$stmtTB->execute();}
+		$stmtTB->close();
+        
+		$stmt = $conn->prepare("INSERT INTO nhantin (noiDung, maNguoiGui, maNguoiNhan, trangThai)VALUES (?, ?, ?, 'da_xem')");
+		$stmt->bind_param("sii", $noiDungBuyer, $maNguoiBan, $maNguoiMua);
+		$stmt->execute();
+		$stmt->close();
+        
         // Commit transaction
         $conn->commit();
 

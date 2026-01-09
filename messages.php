@@ -1,9 +1,8 @@
 <?php
-// chat.php
 session_start();
-
-
-
+function e($str) {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
 require 'db.php';
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -12,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $me = (int)$_SESSION['user_id'];
 
 // danh sách user khác
-$users = $conn->query("SELECT user_id, username, display_name FROM users WHERE user_id <> $me ORDER BY username ASC");
+$users = $conn->query("SELECT maTaiKhoan, tenDangNhap, tenNguoiDung FROM taikhoan WHERE maTaiKhoan <> $me ORDER BY tenDangNhap ASC");
 
 // nhận receiver_id từ query param
 $receiver_id = isset($_GET['to']) ? (int)$_GET['to'] : null;
@@ -20,12 +19,12 @@ $receiver_id = isset($_GET['to']) ? (int)$_GET['to'] : null;
 // nếu receiver tồn tại, lấy tên hiển thị
 $receiver_name = '';
 if ($receiver_id) {
-    $stmt = $conn->prepare("SELECT display_name, username FROM users WHERE user_id = ?");
+    $stmt = $conn->prepare("SELECT tenNguoiDung, tenDangNhap FROM taikhoan WHERE maTaiKhoan = ?");
     $stmt->bind_param("i", $receiver_id);
     $stmt->execute();
     $rres = $stmt->get_result();
     if ($rrow = $rres->fetch_assoc()) {
-        $receiver_name = $rrow['display_name'] ?: $rrow['username'];
+        $receiver_name = $rrow['tenDangNhap'] ?: $rrow['tenNguoiDung'];
     } else {
         $receiver_id = null;
     }
@@ -48,7 +47,6 @@ if ($receiver_id) {
     margin: 6px 0;
     border-radius: 10px 0 10px 10px;
     display: inline-block;
-    float: right;
     clear: both;
     max-width: 70%;
 }
@@ -60,7 +58,6 @@ if ($receiver_id) {
     margin: 6px 0;
     border-radius: 0 10px 10px 10px;
     display: inline-block;
-    float: left;
     clear: both;
     max-width: 70%;
 }
@@ -73,13 +70,13 @@ if ($receiver_id) {
 </style>
 </head>
 <body>
-<p>Xin chào <b><?= e($_SESSION['display_name']) ?></b> — <a href="logout.php">Đăng xuất</a></p>
+<p>Xin chào <b><?= e($_SESSION['tenNguoiDung']) ?></b>
 <div class="container">
     <div class="users">
         <h4>Người dùng</h4>
         <?php while ($u = $users->fetch_assoc()): ?>
             <div>
-                <a href="chat.php?to=<?= $u['user_id'] ?>"><?= e($u['display_name'] ?: $u['username']) ?></a>
+                <a href="messages.php?to=<?= $u['maTaiKhoan'] ?>"><?= e($u['tenNguoiDung'] ?: $u['tenDangNhap']) ?></a>
             </div>
         <?php endwhile; ?>
     </div>
@@ -105,39 +102,71 @@ if ($receiver_id) {
 </div>
 
 <script>
-// Hàm tải tin nhắn
+const receiverId = <?= $receiver_id ? $receiver_id : 'null' ?>;
+const chatWindow = document.getElementById("chat-window");
+const form = document.getElementById("send-form");
+const input = document.getElementById("message-input");
+
+/* LOAD TIN NHẮN */
 function loadMessages() {
-    const receiver = <?= $receiver_id ? $receiver_id : 'null' ?>;
-    if (!receiver) return;
-    fetch('load_messages.php?to=' + receiver)
-      .then(r => r.text())
-      .then(html => {
-          const cw = document.getElementById('chat-window');
-          cw.innerHTML = html;
-          cw.scrollTop = cw.scrollHeight;
-      });
+    if (!receiverId) return;
+
+    fetch("msg_load.php?to=" + receiverId)
+        .then(r => r.text())
+        .then(html => {
+            chatWindow.innerHTML = html;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        });
 }
 
-// gửi tin nhắn bằng AJAX
-const form = document.getElementById('send-form');
+/* GỬI TIN */
+function sendMsg(){
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    fetch("msg_send.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body:
+          "receiver_id=" + encodeURIComponent(receiverId) +
+          "&message=" + encodeURIComponent(msg)
+    })
+    .then(r => r.json())
+    .then(j => {
+        if (j.success) {
+            input.value = "";
+            loadMessages();
+        } else {
+            alert("Lỗi gửi: " + j.error);
+        }
+    })
+    .catch(() => alert("Không gửi được tin nhắn"));
+}
+
+/* SUBMIT */
 if (form) {
-    form.addEventListener('submit', function(e){
+    form.addEventListener("submit", function(e){
         e.preventDefault();
-        const data = new FormData(form);
-        fetch('send_message.php', { method: 'POST', body: data })
-          .then(r => r.json())
-          .then(j => {
-              if (j.success) {
-                  document.getElementById('message-input').value = '';
-                  loadMessages();
-              } else {
-                  alert('Lỗi gửi: ' + j.error);
-              }
-          });
+        sendMsg();
     });
-    // tự động load mỗi 2s
+}
+
+/* ENTER = GỬI */
+if (input) {
+    input.addEventListener("keydown", function(e){
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMsg();
+        }
+    });
+}
+
+/* AUTO LOAD */
+if (receiverId) {
     loadMessages();
-    setInterval(loadMessages, 2000);
+    setInterval(loadMessages, 3000);
 }
 </script>
 </body>
