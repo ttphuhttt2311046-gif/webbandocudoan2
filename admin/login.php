@@ -57,6 +57,7 @@ $stmt->close();
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Đăng nhập tài khoản</title>
     <link rel="stylesheet" href="../assets/css/login.css">

@@ -231,7 +231,8 @@ img {
 
 @media (max-width: 480px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .logo-title h1 a {
@@ -549,5 +550,26 @@ img {
     font-size: 15px;
   }
 }
+@media (max-width: 480px) {
+  .card img {
+    height: 120px;
+  }
+}
+@media (max-width: 480px) {
+  .card {
+    padding: 8px;
+  }
+}
+@media (max-width: 480px) {
+  .card h3 {
+    font-size: 14px;
+  }
 
+  .card .price {
+    font-size: 14px;
+  }
 
+  .card p {
+    font-size: 12px;
+  }
+}
