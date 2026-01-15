@@ -156,10 +156,10 @@ $conn->close();
       <label>Ảnh phụ 3:</label>
       <input type="file" name="hinhAnh3"><br>
 
-      <div style="margin-top:10px;">
-        <button class="btn" type="submit">Lưu</button>
-        <a class="btn btn-outline" href="index.php">Hủy</a>
-      </div>
+      <div class="form-actions">
+  <button class="btn" type="submit">Lưu</button>
+  <a class="btn btn-outline" href="index.php">Hủy</a>
+</div>
     </form>
   </main>
 

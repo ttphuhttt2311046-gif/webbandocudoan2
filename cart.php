@@ -11,42 +11,62 @@ if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
 // THÊM SẢN PHẨM VÀO GIỎ
 // =========================
 if ($action === 'add') {
-    $id = intval($_GET['id']);
+
+    // 🔒 CHƯA ĐĂNG NHẬP → KHÔNG CHO THÊM GIỎ
+    if (!isset($_SESSION['user_id'])) {
+        echo "<script>
+            alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+            window.location='admin/login.php';
+        </script>";
+        exit;
+    }
+
+    $id  = intval($_GET['id'] ?? 0);
     $qty = isset($_GET['qty']) ? max(1, intval($_GET['qty'])) : 1;
 
-    $stmt = $conn->prepare("SELECT maSanPham, tenSanPham, gia, hinhAnh, soLuong FROM sanpham WHERE maSanPham = ?");
+    $stmt = $conn->prepare("
+        SELECT maSanPham, tenSanPham, gia, hinhAnh, soLuong
+        FROM sanpham
+        WHERE maSanPham = ?
+    ");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $res = $stmt->get_result();
-    $p = $res->fetch_assoc();
+    $p   = $res->fetch_assoc();
+    $stmt->close();
 
-    if ($p) {
-        $soLuongTon = intval($p['soLuong']);
-        if ($soLuongTon <= 0) {
-            echo "<script>alert('Sản phẩm đã hết hàng!'); window.location='index.php';</script>";
-            exit;
-        }
-
-        $currentQty = isset($_SESSION['cart'][$id]) ? $_SESSION['cart'][$id]['qty'] : 0;
-        $newQty = $currentQty + $qty;
-        if ($newQty > $soLuongTon) {
-            echo "<script>alert('Số lượng vượt quá hàng tồn! Còn lại {$soLuongTon} sản phẩm.'); window.location='product.php?id={$id}';</script>";
-            exit;
-        }
-
-        $_SESSION['cart'][$id] = [
-            'id' => $p['maSanPham'],
-            'name' => $p['tenSanPham'],
-            'price' => $p['gia'],
-            'image' => $p['hinhAnh'],
-            'qty' => $newQty
-        ];
-        header("Location: cart.php");
-        exit;
-    } else {
+    if (!$p) {
         echo "<script>alert('Không tìm thấy sản phẩm!'); window.location='index.php';</script>";
         exit;
     }
+
+    $soLuongTon = intval($p['soLuong']);
+    if ($soLuongTon <= 0) {
+        echo "<script>alert('Sản phẩm đã hết hàng!'); window.location='index.php';</script>";
+        exit;
+    }
+
+    $currentQty = $_SESSION['cart'][$id]['qty'] ?? 0;
+    $newQty = $currentQty + $qty;
+
+    if ($newQty > $soLuongTon) {
+        echo "<script>
+            alert('Số lượng vượt quá tồn kho! Còn {$soLuongTon} sản phẩm.');
+            window.location='product.php?id={$id}';
+        </script>";
+        exit;
+    }
+
+    $_SESSION['cart'][$id] = [
+        'id'    => $p['maSanPham'],
+        'name'  => $p['tenSanPham'],
+        'price' => $p['gia'],
+        'image' => $p['hinhAnh'],
+        'qty'   => $newQty
+    ];
+
+    header("Location: cart.php");
+    exit;
 }
 
 // =========================
@@ -239,6 +259,7 @@ unset($_SESSION['checkout_lock']);
 <html lang="vi">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giỏ hàng</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -246,7 +267,9 @@ unset($_SESSION['checkout_lock']);
 <body>
   <header class="topbar">
     <div class="container">
-      <h1><a href="index.php">Shop Đồ Cũ</a></h1>
+      <div class="logo-title">
+  <h1><a href="index.php">Shop Đồ Cũ</a></h1>
+</div>
       <div class="nav">
         <?php
 $cartCount = 0;
@@ -311,7 +334,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
       <td class="sub-total"><?php echo number_format($sub,0,',','.'); ?> VND</td>
 
       <td>
-        <a class="btn btn-outline" href="#" onclick="return confirmDelete(<?php echo $id; ?>)">Xóa</a>
+        <a class="btn btn-delete" href="#" onclick="return confirmDelete(<?php echo $id; ?>)">Xóa</a>
       </td>
     </tr>
   <?php endforeach; ?>
@@ -323,7 +346,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
 </div>
 
 <div class="cart-actions">
-  <a class="btn btn-outline" href="#" onclick="return confirmCheckout()">Thanh toán</a>
+  <a class="btn btn-checkout" href="#" onclick="return confirmCheckout()">Thanh toán</a>
 </div>
 
 <script>

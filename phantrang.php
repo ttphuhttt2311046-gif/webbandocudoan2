@@ -26,7 +26,7 @@ $totalItems = intval($total_row['total']);
 $totalPages = max(1, ceil($totalItems / $limit));
 
 /* QUERY */
-$sql = "SELECT maSanPham, tenSanPham, moTa, gia, hinhAnh
+$sql = "SELECT maSanPham, tenSanPham, moTa, gia, hinhAnh, soLuong
         FROM sanpham
         $where_sql
         ORDER BY maSanPham DESC
@@ -40,26 +40,34 @@ echo '<div class="grid">';
 if ($res && $res->num_rows > 0) {
     while ($row = $res->fetch_assoc()) {
         $img = 'assets/img/' . ($row['hinhAnh'] ?: 'placeholder.png');
-
-        echo '<div class="card">';
+        $isHetHang = ($row['soLuong'] <= 0);
+        $cardClass = $isHetHang ? 'card het-hang' : 'card';
+        echo '<div class="'.$cardClass.'" onclick="window.location=\'product.php?id='.$row['maSanPham'].'\'">';
+        // ===== ẢNH + OVERLAY =====
+        echo '<div class="img-wrap">';
         echo '<img src="'.$img.'">';
+        if ($isHetHang) {
+            echo '<span class="badge-het-hang">TẠM HẾT HÀNG</span>';
+        }
+        echo '</div>';
         echo '<div class="title">'.$row['tenSanPham'].'</div>';
         echo '<div class="price">'.number_format($row['gia'],0,',','.').' VND</div>';
         echo '<p class="desc">'.mb_strimwidth($row['moTa'],0,80,'...').'</p>';
-
         echo '<div class="card-actions">';
         echo '<a href="product.php?id='.$row['maSanPham'].'">Xem chi tiết</a>';
-        echo '<a href="cart.php?action=add&id='.$row['maSanPham'].'">Thêm vào giỏ</a>';
+        if ($isHetHang) {
+            echo '<span class="btn-disabled">Hết hàng</span>';
+        } else {
+            echo '<a href="cart.php?action=add&id='.$row['maSanPham'].'">Thêm vào giỏ</a>';
+        }
         echo '</div>';
-
         echo '</div>';
     }
 } else {
     echo '<p>Chưa có sản phẩm</p>';
 }
-
-echo '</div>'; // END GRID
-
+echo '</div>';
+// END GRID
 /* ========== PAGINATION ========== */
 if ($totalPages > 1) {
     echo '<div class="pagination">';
