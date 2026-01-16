@@ -26,13 +26,28 @@ $totalItems = intval($total_row['total']);
 $totalPages = max(1, ceil($totalItems / $limit));
 
 /* QUERY */
-$sql = "SELECT maSanPham, tenSanPham, moTa, gia, hinhAnh, soLuong
+$sql = "SELECT maSanPham, tenSanPham, moTa, gia, giamGia, tuChoiSuKien,hinhAnh, soLuong
         FROM sanpham
         $where_sql
         ORDER BY maSanPham DESC
         LIMIT $limit OFFSET $offset";
 
 $res = $conn->query($sql);
+
+$now = date('Y-m-d H:i:s');
+$event = null;
+
+$eventSql = "
+  SELECT * FROM sukien_giamgia
+  WHERE trangThai = 1
+    AND batDau <= '$now'
+    AND ketThuc >= '$now'
+  LIMIT 1
+";
+$eventRes = $conn->query($eventSql);
+if ($eventRes && $eventRes->num_rows > 0) {
+    $event = $eventRes->fetch_assoc();
+}
 
 /* ========== GRID ========== */
 echo '<div class="grid">';
@@ -42,16 +57,43 @@ if ($res && $res->num_rows > 0) {
         $img = 'assets/img/' . ($row['hinhAnh'] ?: 'placeholder.png');
         $isHetHang = ($row['soLuong'] <= 0);
         $cardClass = $isHetHang ? 'card het-hang' : 'card';
+        $giaGoc = $row['gia'];
+$giamCaNhan = intval($row['giamGia']);
+$giamSuKien = 0;
+
+if ($event && $row['tuChoiSuKien'] == 0) {
+    $giamSuKien = intval($event['phanTramGiam']);
+}
+
+$giamApDung = max($giamCaNhan, $giamSuKien);
+
+$giaMoi = $giaGoc * (100 - $giamApDung) / 100;
+
         echo '<div class="'.$cardClass.'" onclick="window.location=\'product.php?id='.$row['maSanPham'].'\'">';
         // ===== ẢNH + OVERLAY =====
         echo '<div class="img-wrap">';
         echo '<img src="'.$img.'">';
+        if ($giamApDung > 0) {
+    if ($giamSuKien > $giamCaNhan) {
+        echo '<span class="badge-flash">FLASH SALE -'.$giamApDung.'%</span>';
+    } else {
+        echo '<span class="badge-sale">-'.$giamApDung.'%</span>';
+    }
+}
         if ($isHetHang) {
             echo '<span class="badge-het-hang">TẠM HẾT HÀNG</span>';
         }
         echo '</div>';
         echo '<div class="title">'.$row['tenSanPham'].'</div>';
-        echo '<div class="price">'.number_format($row['gia'],0,',','.').' VND</div>';
+        echo '<div class="price">';
+			if ($giamApDung > 0) {
+    echo '<span class="old-price">'.number_format($giaGoc,0,',','.').' VND</span>';
+    echo '<span class="new-price">'.number_format($giaMoi,0,',','.').' VND</span>';
+} else {
+    echo number_format($giaGoc,0,',','.').' VND';
+}
+		echo '</div>';
+
         echo '<p class="desc">'.mb_strimwidth($row['moTa'],0,80,'...').'</p>';
         echo '<div class="card-actions">';
         echo '<a href="product.php?id='.$row['maSanPham'].'">Xem chi tiết</a>';

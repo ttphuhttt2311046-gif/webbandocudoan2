@@ -51,14 +51,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $soLuong = intval($_POST['soLuong']);
     $maDanhMuc = intval($_POST['maDanhMuc']);
     $tinhTrang = ($soLuong <= 0) ? "Hết hàng" : "Còn hàng";
+    $giamGia = isset($_POST['giamGia']) ? intval($_POST['giamGia']) : 0;
+if ($giamGia < 0) $giamGia = 0;
+if ($giamGia > 100) $giamGia = 100;
 
     // --- Xử lý ảnh chính ---
     $hinhAnh = $product['hinhAnh'];
     if (!empty($_FILES['hinhAnh']['name'])) {
         $orig = basename($_FILES['hinhAnh']['name']);
         $safeName = time() . "_" . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $orig);
-        move_uploaded_file($_FILES['hinhAnh']['tmp_name'], "../assets/img/" . $safeName);
-        $hinhAnh = $safeName;
+        $allowExt = ['jpg','jpeg','png','webp'];
+$ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+if (!in_array($ext, $allowExt)) {
+    $err = "Chỉ cho phép upload ảnh (jpg, png, webp)";
+} else {
+    move_uploaded_file($_FILES['hinhAnh']['tmp_name'], "../assets/img/" . $safeName);
+    $hinhAnh = $safeName;
+}
     }
 
     // --- Xử lý ảnh phụ 1, 2, 3 ---
@@ -67,22 +76,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $hinhAnh3 = $product['hinhAnh3'];
 
     for ($i = 1; $i <= 3; $i++) {
-        if (!empty($_FILES["hinhAnh{$i}"]["name"])) {
-            $orig = basename($_FILES["hinhAnh{$i}"]["name"]);
-            $safeName = time() . "_{$i}_" . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $orig);
-            move_uploaded_file($_FILES["hinhAnh{$i}"]["tmp_name"], "../assets/img_phu/" . $safeName);
+    if (!empty($_FILES["hinhAnh{$i}"]["name"])) {
+        $orig = basename($_FILES["hinhAnh{$i}"]["name"]);
+        $safeName = time() . "_{$i}_" . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $orig);
+
+        $allowExt = ['jpg','jpeg','png','webp'];
+        $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+
+        if (!in_array($ext, $allowExt)) {
+            $err = "Chỉ cho phép upload ảnh (jpg, png, webp)";
+        } else {
+            move_uploaded_file(
+                $_FILES["hinhAnh{$i}"]["tmp_name"],
+                "../assets/img_phu/" . $safeName
+            );
             ${"hinhAnh{$i}"} = $safeName;
         }
     }
-
+}
     // --- Cập nhật sản phẩm (CÓ cập nhật danh mục) ---
     $update = $conn->prepare("UPDATE sanpham 
-        SET tenSanPham=?, moTa=?, gia=?, soLuong=?, tinhTrang=?, hinhAnh=?, hinhAnh1=?, hinhAnh2=?, hinhAnh3=?, maDanhMuc=?
+        SET tenSanPham=?, moTa=?, gia=?, giamGia=?, soLuong=?, tinhTrang=?, hinhAnh=?, hinhAnh1=?, hinhAnh2=?, hinhAnh3=?, maDanhMuc=?
         WHERE maSanPham=?");
-    $update->bind_param("ssdisssssii",
-        $tenSanPham, $moTa, $gia, $soLuong, $tinhTrang,
-        $hinhAnh, $hinhAnh1, $hinhAnh2, $hinhAnh3, $maDanhMuc, $id
-    );
+    $update->bind_param(
+    "ssdiisssssii",
+    $tenSanPham,   // s
+    $moTa,         // s
+    $gia,          // d
+    $giamGia,      // i
+    $soLuong,      // i
+    $tinhTrang,    // s
+    $hinhAnh,      // s
+    $hinhAnh1,     // s
+    $hinhAnh2,     // s
+    $hinhAnh3,     // s
+    $maDanhMuc,    // i
+    $id            // i
+);
 
     if ($update->execute()) {
         echo "<script>alert('Cập nhật sản phẩm thành công!'); window.location.href='index.php';</script>";
@@ -125,6 +155,13 @@ $conn->close();
 
       <label>Giá (VND)</label>
       <input type="number" name="gia" step="1000" value="<?php echo htmlspecialchars($product['gia']); ?>" required>
+		
+      <label>Giảm giá (%)</label>
+<input type="number" name="giamGia"
+       min="0" max="100"
+       value="<?php echo (int)$product['giamGia']; ?>">
+<label>Giá sau giảm</label>
+<input type="text" id="giaSauGiam" readonly>
 
       <label>Số lượng</label>
       <input type="number" name="soLuong" id="soLuong" min="0" value="<?php echo htmlspecialchars($product['soLuong']); ?>" required>
@@ -174,6 +211,19 @@ $conn->close();
       capNhatTinhTrang();
       soLuongInput.addEventListener('input', capNhatTinhTrang);
   });
+  const gia = document.querySelector('input[name="gia"]');
+const giamGia = document.querySelector('input[name="giamGia"]');
+const giaSauGiam = document.getElementById('giaSauGiam');
+
+function capNhatGia() {
+    const g = parseFloat(gia.value) || 0;
+    const gg = parseInt(giamGia.value) || 0;
+    giaSauGiam.value = (g - g * gg / 100).toLocaleString('vi-VN') + ' ₫';
+}
+
+gia.addEventListener('input', capNhatGia);
+giamGia.addEventListener('input', capNhatGia);
+capNhatGia();
   </script>
 </body>
 </html>

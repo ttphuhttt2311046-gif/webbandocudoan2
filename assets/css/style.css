@@ -1301,4 +1301,41 @@ img {
         padding: 8px 14px;
     }
 }
+.img-wrap {
+  position: relative;
+}
 
+.badge-sale {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #ff3b3b;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 14px;
+  display: block;
+}
+
+.new-price {
+  color: #e60000;
+  font-weight: bold;
+  font-size: 18px;
+}
+.badge-flash {
+  background: linear-gradient(45deg, #ff0000, #ff9800);
+  color: #fff;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 6px;
+}
