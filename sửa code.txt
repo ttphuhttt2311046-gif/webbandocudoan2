@@ -1,0 +1,198 @@
+=======Link truy cập
+https://bandocu.infinityfreeapp.com/
+=======CẬP NHẬT
+...
+mấy ngày trước
+- sửa style.css (register.css login.css)
+- sửa tên file messages msg_load msg_send
+- sửa nút chat (chat popup, sửa cho hợp lí 1 người đặt nhiều sản phẩm chỉ thông báo 1 lần)
+- sửa cart.php
+- sửa phantrang.php (thêm nút nhảy 1 trang nhảy lên trang 1 nhảy tới trang cuối)
+15/1/2025
+- cập nhật syle.css (tạm hết hàng, sửa tiếp dd mobile, thanh toán, chi tiết)
+16/1/2025
+- thêm cột giamGia vào sanpham (ALTER TABLE sanpham ADD giamGia INT DEFAULT 0;)
+- phantrang.php (
+  + querry $sql thêm giamGia d29
+  + trong while dán dưới $cardClass $giaGoc = $row['gia']; $giamGia = intval($row['giamGia']); $giaMoi = ($giamGia > 0) ? $giaGoc * (100 - $giamGia) / 100 : $giaGoc;
+  + dán dưới echo '<img src="'.$img.'">'; cái này if ($giamGia > 0) {echo '<span class="badge-sale">-'.$giamGia.'%</span>';}
+  + xóa dòng 62 echo '<div class="price">'.number_format($row['gia'],0,',','.').' VND</div>'; đổi thành echo '<div class="price">';
+    if ($giamGia > 0) {
+    echo '<span class="old-price">'.number_format($giaGoc,0,',','.').' VND</span>';
+    echo '<span class="new-price">'.number_format($giaMoi,0,',','.').' VND</span>';
+    } else {
+    echo number_format($giaGoc,0,',','.').' VND';
+    }
+    echo '</div>';
+- style.css để cuối cùng
+  .img-wrap {
+  position: relative;
+}
+
+.badge-sale {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #ff3b3b;
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 14px;
+  display: block;
+}
+
+.new-price {
+  color: #e60000;
+  font-weight: bold;
+  font-size: 18px;
+}
+)
+NÂNG CẤP
+✅ Người bán chỉnh giảm giá riêng từng sản phẩm
+✅ Admin tạo Flash Sale / Sự kiện lớn (Tết, 11.11, Black Friday…)
+✅ Toàn bộ sản phẩm đồng loạt giảm
+✅ Người bán có quyền từ chối sự kiện
+✅ Không xung đột logic giá
+✅ Frontend hiển thị rõ:
+Giá gốc
+Giá sau giảm
+Badge (-%, Flash Sale…)
+
+- thêm cột tuChoiSuKien 1 là từ chối " ALTER TABLE sanpham ADD tuChoiSuKien TINYINT DEFAULT 1; "
+- thêm bảng mới " CREATE TABLE sukien_giamgia (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tenSuKien VARCHAR(255),
+  phanTramGiam INT,
+  batDau DATETIME,
+  ketThuc DATETIME,
+  trangThai TINYINT DEFAULT 1
+); "
+>> Giá gốc
+ ├─ Giảm thủ công (người bán)
+ └─ Giảm sự kiện (admin)
+ → LẤY MỨC GIẢM CAO HƠN
+❌ KHÔNG cộng chồng %
+✅ Lấy MAX(giamGia, giamGiaSuKien)
+- thêm tuChoiSuKien ở sql giamGia ở trên
+- thêm trên ==GRID===
+"$now = date('Y-m-d H:i:s');
+$event = null;
+$eventSql = "
+  SELECT * FROM sukien_giamgia
+  WHERE trangThai = 1
+    AND batDau <= '$now'
+    AND ketThuc >= '$now'
+  LIMIT 1
+";
+$eventRes = $conn->query($eventSql);
+if ($eventRes && $eventRes->num_rows > 0) {
+    $event = $eventRes->fetch_assoc();
+} "
+- thay phần while ở trên thành "$giaGoc = $row['gia'];
+$giamCaNhan = intval($row['giamGia']);
+$giamSuKien = 0;
+if ($event && $row['tuChoiSuKien'] == 0) {
+    $giamSuKien = intval($event['phanTramGiam']);
+}
+$giamApDung = max($giamCaNhan, $giamSuKien);
+$giaMoi = $giaGoc * (100 - $giamApDung) / 100;
+"
+- xóa if ($giamGia > 0) { thêm "$giaGoc = $row['gia'];
+$giamCaNhan = intval($row['giamGia']);
+$giamSuKien = 0;
+if ($event && $row['tuChoiSuKien'] == 0) {
+    $giamSuKien = intval($event['phanTramGiam']);
+}
+$giamApDung = max($giamCaNhan, $giamSuKien);
+$giaMoi = $giaGoc * (100 - $giamApDung) / 100;
+"
+- thêm cuối style.css " .badge-flash {
+  background: linear-gradient(45deg, #ff0000, #ff9800);
+  color: #fff;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 6px 10px;
+  font-weight: bold;
+  border-radius: 6px;
+}
+- xóa if ($giamGia > 0) { cũ sửa thành if ($giamApDung > 0) {
+    if ($giamSuKien > $giamCaNhan) {
+        echo '<span class="badge-flash">FLASH SALE -'.$giamApDung.'%</span>';
+    } else {
+        echo '<span class="badge-sale">-'.$giamApDung.'%</span>';
+    }
+}
+- Product_managers.php(
+  + ở SELECT s.*, d.tenDanhMuc, t.tenNguoiDung sửa thành
+  + ở chỗ nhiều th thêm <th>Giảm giá</th> <th>Sự kiện</th>
+  + trong tr thêm <td>
+    <?php if (intval($p['giamGia']) > 0): ?>
+        <span style="color:red;font-weight:bold">
+            -<?= intval($p['giamGia']) ?>%
+        </span>
+    <?php else: ?>
+        —
+    <?php endif; ?>
+</td>
+
+<td>
+    <?php if (intval($p['tuChoiSuKien']) === 1): ?>
+        <span style="color:#888">Từ chối</span>
+    <?php else: ?>
+        <span style="color:green">Tham gia</span>
+    <?php endif; ?>
+</td>
+- ở đầu file dưới 3 thêm action 
+/* ============================================================
+   3.5) TOGGLE EVENT SALE
+============================================================ */
+if (isset($_GET['toggle_event'])) {
+    $id = intval($_GET['toggle_event']);
+    $conn->query("
+        UPDATE sanpham 
+        SET tuChoiSuKien = IF(tuChoiSuKien=1,0,1)
+        WHERE maSanPham = $id
+    ");
+    exit("OK");
+}
+- chỗ cột hành động thêm <button 
+ onclick="toggleEvent(<?= $p['maSanPham'] ?>)" 
+ class="btn btn-warning">
+ <?= intval($p['tuChoiSuKien']) ? 'Cho tham gia sale' : 'Từ chối sale' ?>
+</button>
+- product.php js thêm cuối function toggleEvent(id){
+    fetch("product_manager.php?toggle_event="+id)
+      .then(res => res.text())
+      .then(() => loadProducts());
+}
+- file edit ở post thêm " $giamGia = isset($_POST['giamGia']) ? intval($_POST['giamGia']) : 0;
+if ($giamGia < 0) $giamGia = 0;
+if ($giamGia > 100) $giamGia = 100; "
+ + trên move_upload_file $allowExt = ['jpg','jpeg','png','webp'];
+$ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+if (!in_array($ext, $allowExt)) {
+    $err = "Chỉ cho phép upload ảnh (jpg, png, webp)";
+} else {
+ + phần bind program 
+    $update->bind_param(
+    "ssdiisssssii",
+    $tenSanPham,   // s
+    $moTa,         // s
+    $gia,          // d
+    $giamGia,      // i
+    $soLuong,      // i
+    $tinhTrang,    // s
+    $hinhAnh,      // s
+    $hinhAnh1,     // s
+    $hinhAnh2,     // s
+    $hinhAnh3,     // s
+    $maDanhMuc,    // i
+    $id            // i
