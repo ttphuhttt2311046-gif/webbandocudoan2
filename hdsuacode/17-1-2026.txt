@@ -1,51 +1,26 @@
-<?php 
-session_start();
-include "../db.php";
-// Kiểm tra vai trò admin
-if (!isset($_SESSION['vaitro']) || $_SESSION['vaitro'] !== 'admin') {
-    die("Bạn không có quyền truy cập trang này");
-}
-// Khóa tài khoản
-if (isset($_GET['lock'])) {
-    $id = intval($_GET['lock']);
-    $conn->query("UPDATE taikhoan SET trangThai = 0 WHERE maTaiKhoan = $id");
-    exit("OK");
-}
-// Mở khóa tài khoản
-if (isset($_GET['unlock'])) {
-    $id = intval($_GET['unlock']);
-    $conn->query("UPDATE taikhoan SET trangThai = 1 WHERE maTaiKhoan = $id");
-    exit("OK");
-}
-// Lấy danh sách user
-$users = $conn->query("SELECT * FROM taikhoan ORDER BY maTaiKhoan DESC");
-?>
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Quản lý người dùng</h1>
-    <!-- MOBILE COLUMN HEADER -->
+17/1/2026
+- thêm file mobile-dashboard.css dô admin/css/ pull là tự có
+
+- thêm <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/mobile-dashboard.css" rel="stylesheet"> dô head của dashboard.php
+- Trong Topbar (<nav class="navbar ...">) thêm trước <ul class="navbar-nav ml-auto">
+<button id="sidebarToggleTop"
+        class="btn btn-link d-md-none rounded-circle mr-3">
+  <i class="fa fa-bars"></i>
+</button>
+- users.php 
+  + dưới h1 thêm <!-- MOBILE COLUMN HEADER -->
 <div class="mobile-column-header">
   <span>ID</span>
   <span>Trạng thái</span>
   <span>Tên</span>
   <span>Vai trò</span>
   <span></span>
-</div>
-    <div class="mobile-user-table">
+</div> <-------- </div> này nè
+  + dưới </div> của + hồi nảy giữa <thead class="thead-dark"> đổi thành <div class="mobile-user-table"> nhớ đống </div> ở dưới
   	<table class="table mobile-table">
-        <thead class="thead-dark">
-            <tr>
-                <th>ID</th>
-                <th>Trạng thái</th>
-                <th>Tên người dùng</th>
-                <th>Email</th>
-                <th>Vai trò</th>
-                <th>SĐT</th>
-                <th>Địa chỉ</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($u = $users->fetch_assoc()): ?>
+  + Thay vòng while thành dạng này 
+<?php while ($u = $users->fetch_assoc()): ?>
 <tr class="user-row" data-id="<?= $u['maTaiKhoan'] ?>">
     <td><?= $u['maTaiKhoan'] ?></td>
     <td>
@@ -105,10 +80,7 @@ $users = $conn->query("SELECT * FROM taikhoan ORDER BY maTaiKhoan DESC");
     </td>
 </tr>
 <?php endwhile; ?>
-        </tbody>
-       </table>
-       </div> 
-</div>
+  + sửa js ở cuối file 
 <script>
 let isActionProcessing = false;
 
@@ -148,3 +120,4 @@ $(document).on("click", ".mobile-user-table .user-row", function(e){
   $detail.stop(true,true).slideToggle(150);
 });
 </script>
+
