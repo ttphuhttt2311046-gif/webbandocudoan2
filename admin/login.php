@@ -58,12 +58,12 @@ $stmt->close();
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng nhập tài khoản</title>
+    <title>Đăng nhập</title>
     <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 <body>
     <div class="cakhoi">
-        <div class="h2">Đăng Nhập Tài Khoản</div>
+        <div class="h2">ĐĂNG NHẬP</div>
         <form method="post">
             <div class="mk">
                 <label>Email:</label>

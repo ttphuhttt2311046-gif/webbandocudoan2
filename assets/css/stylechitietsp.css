@@ -1,0 +1,155 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  background:#f3f4f6;
+  color:#222;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+/* ================= HEADER ================= */
+.topbar{
+  background:#3752ec;
+  color:#fff;
+}
+
+.topbar-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 0; /* khoảng cách trên dưới header */
+}
+
+.topbar-inner h1 a{
+  font-size:40px;
+}
+
+
+.topbar-inner nav{
+  display:flex;
+  align-items:center;
+  gap:20px; /* 👉 khoảng cách giữa Giỏ hàng / Đăng nhập / Đăng ký */
+}
+
+.topbar a{
+  color:#e4dede;
+  text-decoration:none;
+  font-size:20px;
+}
+
+.topbar span{
+  font-size:15px;
+  opacity:0.9;
+}
+
+/* ================= PRODUCT ================= */
+.product-box{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+  background:#fff;
+  padding:30px;
+  border-radius:12px;
+}
+
+/* ================= GALLERY ================= */
+.gallery img{
+  width:100%;
+  border-radius:10px;
+}
+
+.thumbs1{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+
+.thumbs1 img{
+  width:80px;
+  height:80px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+  border:2px solid #e5e7eb;
+}
+
+/* ================= LEFT ACTION ================= */
+.left-action{
+  margin-top:15px;
+}
+
+.left-action h3{
+  font-size:20px;
+  margin-bottom:10px;
+}
+
+.left-action form{
+  display:flex;
+  gap:10px;
+}
+
+.left-action input{
+  width:70px;
+  padding:8px;
+}
+
+.left-action button{
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* ================= INFO ================= */
+.price{
+  font-size:32px;
+  color:#dc2626;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+.meta{
+  display:flex;
+  gap:15px;
+  margin-bottom:15px;
+}
+
+.ok{
+  color:#16a34a;
+  font-weight:600;
+}
+
+.no{
+  color:#dc2626;
+  font-weight:600;
+}
+
+.desc{
+  background:#f9fafb;
+  padding:15px;
+  border-radius:8px;
+  margin-bottom:15px;
+}
+
+.seller{
+  color:#374151;
+}
+
+/* ================= FOOTER ================= */
+.footer{
+  text-align:center;
+  padding:20px;
+  margin-top:40px;
+  color:#6b7280;
+}

@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
   <div class="cakhoi">
-    <h2 class="h2">Đăng ký tài khoản</h2>
+    <h2 class="h2">ĐĂNG KÍ</h2>
     <form method="post">
 
     <div class="mk">
@@ -87,9 +87,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="dangki">
           <button type="submit">Đăng ký</button>
         </div>
-        <p style="color:white; font-size:18px; text-align:center; margin-top:15px;">
+        <p style="color:white; font-size:18px; text-align:center; margin-top:30px;margin-left:15px;">
           Đã có tài khoản? 
-          <a href="login.php" style="color:#00ff2f;">Đăng nhập</a>
+          <a href="login.php" style="color:#ffd700;  font-weight: bold;">Đăng nhập</a>
         </p>
       </div>
 

@@ -4,8 +4,8 @@
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   margin: 0;
-  background: #e4e7e9;
-  color: #15c315;
+  background: #c5dceb;
+  color: #bcefbc;
   padding: 32px;
 }
 
@@ -69,12 +69,12 @@ body {
 
 /* --- PHẦN 2: Style cho website tổng thể --- */
 body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin:0; 
-  background-image: image-set(url(../img/background-pp-don-gian.jpg));
+  background-color:rgb(219, 217, 237);
   background-size: cover;
    color:#222;}
 .container { width: 95%; max-width:1100px; margin: 0 auto; padding: 20px; }
 
-.topbar { background-image: image-set(url(../img/hinh-nen-pp-tinh-te.jpg));
+.topbar { background-color: #2225db;;
    border-bottom:1px solid #e6e9ee;
     }
 .topbar .container {
@@ -85,13 +85,13 @@ body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin:0;
   flex-wrap: nowrap;
   gap: 10px;
 }
-.topbar h1 { margin:0; font-size:20px; }
+.topbar h1 { margin:0px; font-size:20px; }
 .topbar h1 a {
   text-decoration: none;
-  color: #000;
+  color: #f6f4f4;
   font-size: 40px;
   font-weight: bold;
-
+  padding-left: 0px;
 }
  
 
@@ -105,12 +105,12 @@ body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin:0;
   white-space: nowrap;
      /* ✅ Giữ chữ 1 dòng */
 }
-.nav a { margin-left:12px; color:#2988db;
+.nav a { margin-left:12px; color:#ebedef;
    text-decoration:none; padding:8px 10px; border-radius:6px; 
-
-
+font-size: 20px;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.nav a:hover { background:#f1f3f5; }
+.nav a:hover { background:#3752ec; }
 .nav span {
    display: inline-block;
   max-width: 150px;        /* ✅ Giới hạn chiều dài */
@@ -128,7 +128,7 @@ h2{
 .grid { display:flex; flex-wrap:wrap; gap:16px; justify-content:flex-start;
 margin: 25px;color:#2850c5
 }
-.card { background:#fff; width:220px; border-radius:8px; padding:12px; box-shadow:0 4px 10px rgba(18, 13, 40, 0.04);justify-content: space-between; display: flex;
+.card { background:#fbfcfb; width:220px; border-radius:8px; padding:12px; box-shadow:0 4px 10px rgba(18, 13, 40, 0.04);justify-content: space-between; display: flex;
   flex-direction: column;
   height: 350px;}
 .card img { width:100%; height:140px; object-fit:cover; border-radius:6px; }
@@ -511,4 +511,175 @@ input[type=text], input[type=number], input[type=password], textarea { width:100
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Banner chủ đề  */
+.banerchude {
+  width: 100%;
+  margin: 30px 0;
+  display: flex;
+}
+
+/* Ảnh banner */
+.hinhcd {
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+  display: block;
+  height: 450px;
+}
+/* ===== ICON TẾT GÓC ẢNH SẢN PHẨM ===== */
+
+.thumb {
+  position: relative;
+}
+
+.tet-icon {
+  position: absolute;
+  bottom: 0px;
+  right: auto;   /* 🔥 chuyển sang góc phải */
+  left: 0px;    /* 🔥 vô hiệu góc trái */
+
+  background: linear-gradient(135deg, #ff0000, #ffb703);
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  box-shadow:
+    0 6px 15px rgba(0,0,0,0.35),
+    inset 0 0 0 2px #ffd700;
+
+  z-index: 20;
+  pointer-events: none;
+}
+/* =========================
+   FIX HEADER / TOPBAR (1 HÀNG)
+   ========================= */
+
+.topbar {
+  background-color: #2225db;
+  border-bottom: 1px solid #e6e9ee;
+}
+
+.topbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+
+  max-width: 1400px;
+  margin: 0 auto;
+
+  flex-wrap: nowrap;      /* 🔥 ÉP 1 HÀNG */
+}
+
+/* LOGO */
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.topbar h1 {
+  margin: 0;
+}
+
+.topbar h1 a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* SEARCH BAR (CO GIÃN) */
+.search-bar {
+  flex: 1;                /* 🔥 PHẦN CO */
+  display: flex;
+  justify-content: center;
+  min-width: 180px;
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 6px;
+  height: 40px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.search-bar input[type="text"] {
+  flex: 1;
+  border: none;
+  padding: 0 10px;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-bar button {
+  border: none;
+  height: 100%;
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.search-bar button[type="submit"] {
+  background: #1da1f2;
+  color: #fff;
+}
+
+/* MIC */
+.btn-mic {
+  background-color: rgb(31, 211, 94) !important;
+  color: #fff !important;
+}
+
+/* MENU RIGHT */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  flex-shrink: 0;         /* 🔥 KHÔNG CO */
+  white-space: nowrap;   /* 🔥 ÉP 1 DÒNG */
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.nav a:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.nav span {
+  color: #fff;
+  font-size: 14px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ❌ KHÔNG CHO MOBILE XUỐNG DÒNG */
+@media (max-width: 768px) {
+  .topbar .container {
+    overflow-x: auto;     /* 🔥 nếu chật thì scroll nhẹ */
+  }
 }

@@ -239,12 +239,14 @@ if ($action === 'checkout') {
     <div class="container">
       <h1><a href="index.php">Shop Đồ Cũ</a></h1>
       <div class="nav">
-        <a href="cart.php">Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'qty')) : 0; ?>)</a>
+        <a href="cart.php">🛒Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'qty')) : 0; ?>)</a>
         <?php if (isset($_SESSION['user_id'])): ?>
             <?php if (isset($_SESSION['vaitro']) && ($_SESSION['vaitro'] === 'seller' || $_SESSION['vaitro'] === 'admin')): ?>
                 <a href="admin/index.php">Quản lý sản phẩm</a>
             <?php endif; ?>
-            <span>Xin chào, <?php echo htmlspecialchars($_SESSION['tenNguoiDung'] ?? ''); ?></span>
+<span style="color:#fff;">
+  Xin chào, <?php echo htmlspecialchars($_SESSION['tenNguoiDung'] ?? ''); ?>
+</span>
             <a href="admin/logout.php">Đăng xuất</a>
         <?php else: ?>
             <a href="admin/login.php">Đăng nhập</a>

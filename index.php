@@ -2,9 +2,8 @@
 session_start();
 include "db.php";
 
-// Thời gian 20 phút (1200 giây) để tính là phiên mới
+/* ĐẾM LƯỢT TRUY CẬP */
 $sessionTimeout = 1200;
-
 if (!isset($_SESSION['last_visit']) || time() - $_SESSION['last_visit'] > $sessionTimeout) {
     $conn->query("UPDATE counter SET total = total + 1 WHERE id = 1");
 }
@@ -21,6 +20,7 @@ $_SESSION['last_visit'] = time();
 
 <header class="topbar">
   <div class="container">
+
     <div class="logo-title">
       <img src="assets/img/LOGO.png" alt="Logo" class="logo">
       <h1><a href="index.php">Shop Đồ Cũ</a></h1>
@@ -41,28 +41,34 @@ $_SESSION['last_visit'] = time();
 
     <div class="nav">
       <a href="cart.php">
-        Giỏ hàng (<?php echo isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'qty')) : 0; ?>)
+        🛒 Giỏ hàng (
+        <?php echo isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'qty')) : 0; ?>
+        )
       </a>
 
       <?php if (isset($_SESSION['user_id'])): ?>
-          <?php if (isset($_SESSION['vaitro']) && $_SESSION['vaitro'] === 'admin'): ?>
-              <a href="admin/dashboard.php">Quản lý</a>
-          <?php endif; ?>
 
-          <?php if (isset($_SESSION['vaitro']) && $_SESSION['vaitro'] === 'seller'): ?>
-              <a href="admin/index.php">Quản lí sản phẩm</a>
-              <a href="seller_orders.php">Đơn hàng của tôi</a>
-          <?php endif; ?>
+        <?php if ($_SESSION['vaitro'] === 'admin'): ?>
+          <a href="admin/dashboard.php">Quản lý</a>
+        <?php endif; ?>
 
-          <a href="admin/ttnguoidung.php" style="color:blue;">
-              Xin chào, <?php echo htmlspecialchars($_SESSION['tenNguoiDung'] ?? ''); ?>
-          </a>
-          <a href="admin/logout.php">Đăng xuất</a>
+        <?php if ($_SESSION['vaitro'] === 'seller'): ?>
+          <a href="admin/index.php">Quản lí sản phẩm</a>
+          <a href="seller_orders.php">Đơn hàng của tôi</a>
+        <?php endif; ?>
+
+        <a href="admin/ttnguoidung.php" style="color:white;">
+          Xin chào, <?php echo htmlspecialchars($_SESSION['tenNguoiDung'] ?? ''); ?>
+        </a>
+
+        <a href="admin/logout.php">Đăng xuất</a>
+
       <?php else: ?>
-          <a href="admin/login.php">Đăng nhập</a>
-          <a href="admin/register.php">Đăng ký</a>
+        <a href="admin/login.php">Đăng nhập</a>
+        <a href="admin/register.php">Đăng ký</a>
       <?php endif; ?>
     </div>
+
   </div>
 </header>
 
@@ -88,14 +94,15 @@ $_SESSION['last_visit'] = time();
 <div class="category-bar">
 <?php
 $cats = $conn->query("SELECT maDanhMuc, tenDanhMuc FROM danhmuc ORDER BY tenDanhMuc ASC");
-$allActive = !isset($_GET['cat']) || $_GET['cat'] === '' ? 'active' : '';
+$allActive = !isset($_GET['cat']) ? 'active' : '';
 echo '<a href="index.php" class="cat-item all '.$allActive.'">Tất cả</a>';
 
 if ($cats && $cats->num_rows > 0) {
     while ($cat = $cats->fetch_assoc()) {
         $catId = (int)$cat['maDanhMuc'];
         $active = (isset($_GET['cat']) && intval($_GET['cat']) === $catId) ? 'active' : '';
-        echo '<a class="cat-item '.$active.'" href="index.php?cat='.$catId.'">'.htmlspecialchars($cat['tenDanhMuc']).'</a>';
+        echo '<a class="cat-item '.$active.'" href="index.php?cat='.$catId.'">'
+            .htmlspecialchars($cat['tenDanhMuc']).'</a>';
     }
 }
 ?>
@@ -112,7 +119,7 @@ if ($cats && $cats->num_rows > 0) {
   <div class="container">© <?php echo date("Y"); ?> Shop Đồ Cũ</div>
 </footer>
 
-<!-- 🎤 VOICE SEARCH SCRIPT -->
+<!-- 🎤 VOICE SEARCH (ĐÃ FIX LỖI DẤU . , KÝ TỰ LẠ) -->
 <script>
 function startVoice() {
     if (!('webkitSpeechRecognition' in window)) {
@@ -123,14 +130,28 @@ function startVoice() {
     const recognition = new webkitSpeechRecognition();
     recognition.lang = "vi-VN";
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onresult = function(event) {
-        const text = event.results[0][0].transcript;
+        let text = event.results[0][0].transcript;
+
+        // 🔥 LÀM SẠCH CHUỖI GIỌNG NÓI
+        text = text
+            .toLowerCase()
+            .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, '')
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+
+        if (text.length === 0) {
+            alert("Không nhận diện được từ khóa");
+            return;
+        }
+
         document.getElementById("query").value = text;
         document.getElementById("searchForm").submit();
     };
 
-    recognition.onerror = function() {
+    recognition.onerror = function () {
         alert("Không nhận được giọng nói");
     };
 
