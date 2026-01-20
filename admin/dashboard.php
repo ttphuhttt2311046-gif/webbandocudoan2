@@ -46,15 +46,18 @@ $year = $resYear ? $resYear->fetch_assoc() : ['tongDoanhThu'=>0,'soDonHang'=>0];
 // Lượt truy cập
 $trafficQuery = $conn->query("SELECT total FROM counter WHERE id = 1");
 $totalTraffic = intval($trafficQuery->fetch_assoc()['total']);
+
 ?>
 
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Admin</title>
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/mobile-dashboard.css" rel="stylesheet">
 </head>
 <body id="page-top">
 <div id="wrapper">
@@ -80,6 +83,10 @@ $totalTraffic = intval($trafficQuery->fetch_assoc()['total']);
         <div id="content">
             <!-- Topbar -->
             <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+                <button id="sidebarToggleTop"
+        class="btn btn-link d-md-none rounded-circle mr-3">
+  <i class="fa fa-bars"></i>
+</button>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">

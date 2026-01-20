@@ -1,0 +1,312 @@
+/* =========================
+   DASHBOARD MOBILE ONLY
+   ========================= */
+@media (max-width: 768px) {
+
+  /* ===== TOÀN BỘ CHỮ TO HƠN ===== */
+  body {
+    font-size: 16px;
+  }
+
+  h1, .h3 {
+    font-size: 22px !important;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 100% !important;
+    position: relative;
+  }
+
+  .sidebar .nav-item a {
+    font-size: 18px;
+    padding: 14px 16px;
+  }
+
+  .sidebar .sidebar-brand-text {
+    font-size: 20px;
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar {
+    padding: 10px;
+  }
+
+  .topbar .nav-link span {
+    font-size: 16px;
+  }
+
+  /* ===== CARD DOANH THU ===== */
+  .card {
+    border-radius: 14px;
+  }
+
+  .card-body {
+    padding: 18px;
+  }
+
+  .text-xs {
+    font-size: 15px !important;
+  }
+
+  .card .h5 {
+    font-size: 22px;
+    line-height: 1.4;
+  }
+
+  .text-gray-500 {
+    font-size: 15px;
+    margin-top: 6px;
+  }
+
+  /* ===== ICON TO HƠN ===== */
+  .card i {
+    font-size: 36px !important;
+  }
+
+  /* ===== CHIA 1 CỘT TRÊN MOBILE ===== */
+  .col-xl-3,
+  .col-md-6 {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+  /* ===== AJAX CONTENT ===== */
+  #ajax-content {
+    padding: 10px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    font-size: 14px;
+    padding: 12px 0;
+  }
+
+  /* ===== NÚT SCROLL TOP ===== */
+  .scroll-to-top {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+}
+@media (max-width: 768px) {
+
+  /* ẨN SIDEBAR */
+  .sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden;
+  }
+
+  body.sidebar-toggled .sidebar {
+    width: 220px !important;
+  }
+
+  /* NỘI DUNG FULL MÀN HÌNH */
+  #content-wrapper {
+    margin-left: 0 !important;
+  }
+}
+@media (max-width: 768px) {
+
+  .card {
+    border-radius: 16px;
+  }
+
+  .card-body {
+    padding: 14px 16px;
+  }
+
+  /* TIÊU ĐỀ */
+  .card .text-xs {
+    font-size: 13px !important;
+    letter-spacing: 0.5px;
+  }
+
+  /* SỐ TIỀN */
+  .card .h5 {
+    font-size: 13px !important;
+    font-weight: 800;
+    margin: 4px 0;
+  }
+
+  /* SỐ ĐƠN */
+  .card .text-gray-500 {
+    font-size: 14px;
+  }
+
+  /* ICON NHỎ LẠI */
+  .card i {
+    font-size: 28px !important;
+    opacity: 0.3;
+  }
+}
+@media (max-width: 768px) {
+
+  .col-xl-3,
+  .col-md-6 {
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+}
+
+/* MÀN HÌNH NHỎ HƠN  */
+@media (max-width: 420px) {
+  .col-xl-3,
+  .col-md-6 {
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+}
+@media (max-width: 768px) {
+
+  /* TABLE CUỘN NGANG */
+  .mobile-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 900px;
+  }
+
+  /* CHỮ TO – DỄ ĐỌC */
+  table th,
+  table td {
+    font-size: 15px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* NÚT BẤM TO HƠN */
+  table .btn {
+    font-size: 14px;
+    padding: 6px 10px;
+    margin: 2px 0;
+  }
+}
+
+/* =========================
+   USER LIST – MOBILE
+   ========================= */
+@media (max-width: 768px) {
+
+  /* ===== HEADER TÊN CỘT ===== */
+  .mobile-column-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #ffffff;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+  }
+
+  .mobile-column-header span:nth-child(1) { min-width: 28px; }
+  .mobile-column-header span:nth-child(2) { min-width: 70px; }
+  .mobile-column-header span:nth-child(3) { flex: 1; }
+  .mobile-column-header span:nth-child(4) { min-width: 60px; }
+  .mobile-column-header span:nth-child(5) { min-width: 20px; }
+
+  /* ===== TABLE RESET ===== */
+  .mobile-user-table {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .mobile-user-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+  }
+
+  .mobile-user-table thead {
+    display: none;
+  }
+
+  .mobile-user-table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  /* ===== USER ROW ===== */
+  .mobile-user-table tr.user-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #f2f3f7;
+    border-radius: 12px;
+    width: 100%;
+  }
+
+  .mobile-user-table tr.user-row td {
+    display: none;
+    padding: 0;
+    border: none;
+  }
+
+  .mobile-user-table tr.user-row td:nth-child(1) {
+    display: block;
+    font-size: 12px;
+    min-width: 28px;
+    color: #888;
+  }
+
+  .mobile-user-table tr.user-row td:nth-child(2) {
+    display: block;
+  }
+
+  .mobile-user-table tr.user-row td:nth-child(3) {
+    display: block;
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-user-table tr.user-row td:nth-child(5) {
+    display: block;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .mobile-user-table tr.user-row td:nth-child(8) {
+    display: block;
+  }
+
+  /* ===== DETAIL ===== */
+  .mobile-user-table tr.user-detail {
+    display: none;
+    width: 100%;
+  }
+
+  .mobile-user-table tr.user-detail td {
+    display: block;
+    background: #fafbff;
+    padding: 12px;
+    border-radius: 0 0 12px 12px;
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  .desktop-actions {
+    display: none;
+  }
+}
+
+/* =========================
+   DESKTOP
+   ========================= */
+@media (min-width: 769px) {
+  .mobile-column-header {
+    display: none;
+  }
+}

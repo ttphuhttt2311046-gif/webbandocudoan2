@@ -90,7 +90,12 @@ function deleteProduct(id) {
 /* Tự động load khi mở trang */
 $("#search, #filterDanhMuc, #filterTinhTrang").on("input change", loadProducts);
 loadProducts();
-</script>
 
+function toggleEvent(id){
+    fetch("product_manager.php?toggle_event="+id)
+      .then(res => res.text())
+      .then(() => loadProducts());
+}
+</script>
 </body>
 </html>
