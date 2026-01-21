@@ -1616,3 +1616,96 @@ input[type=text], input[type=number], input[type=password], textarea { width:100
     overflow-x: auto;     /* 🔥 nếu chật thì scroll nhẹ */
   }
 }
+
+/* ================= SCROLL TOP / BOTTOM BUTTON ================= */
+.scroll-buttons {
+  position: fixed;
+  right: 20px;
+  bottom: 100px;            /* tránh đè nút chat */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9998;
+}
+
+.scroll-buttons button {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: #6c63ff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+
+  display: none;            /* JS sẽ bật */
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.scroll-buttons button:hover {
+  background: #5146d8;
+  transform: scale(1.1);
+}
+
+/* MOBILE: đẩy lên cao hơn */
+@media (max-width: 600px) {
+  .scroll-buttons {
+    right: 14px;
+    bottom: 90px;
+  }
+
+  .scroll-buttons button {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+}
+/* ================= FIXED HEADER (CHẮC CHẮN DÍNH) ================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10001; /* cao hơn chat */
+
+  background: #eaf2ff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+body {
+  padding-top: 90px;
+}
+@media (max-width: 768px) {
+  body {
+    padding-top: 120px;
+  }
+}
+.banner-img1 {
+  width: 100%;
+  overflow: hidden;
+}
+
+.banner-slider {
+  display: flex;
+  gap: 10px;
+}
+
+.banner-slider img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .banner-slider img {
+    max-height: 200px;
+    border-radius: 8px;
+  }
+}

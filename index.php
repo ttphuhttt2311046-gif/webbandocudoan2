@@ -13,10 +13,10 @@ $_SESSION['last_visit'] = time();
 <html lang="vi">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shop Đồ Cũ - Trang chủ</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
 
 <header class="topbar">
   <div class="container">
@@ -75,16 +75,14 @@ $_SESSION['last_visit'] = time();
 <!-- 🔻 BANNER -->
 <div class="banner-img1">
   <div class="banner-slider">
-    <img src="assets/img/cau-hinh-pc-cho-thiet-ke-do-hoa.jpg">
-    <img src="assets/img/bean.jpg">
-    <img src="assets/img/phan-biet-may-giat-cong-nghiep-va-may-giat-thuong.jpg">
-    <img src="assets/img/banner1.jpg">
-    <img src="assets/img/banner2.png">
-    <img src="assets/img/banner3.jpg">
-    <img src="assets/img/bean.jpg">
-    <img src="assets/img/banner4.jpg">
-    <img src="assets/img/banner5.jpg">
-    <img src="assets/img/banner6.png">
+    <?php
+    $banners = $conn->query("SELECT * FROM banner WHERE trangthai=1 ORDER BY thu_tu ASC");
+    while ($b = $banners->fetch_assoc()):
+    ?>
+      <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank">
+        <img src="<?= $b['hinh'] ?>" alt="Banner">
+      </a>
+    <?php endwhile; ?>
   </div>
 </div>
 
@@ -107,9 +105,13 @@ if ($cats && $cats->num_rows > 0) {
 }
 ?>
 </div>
+<!-- ===== SCROLL BUTTONS ===== -->
+<div class="scroll-buttons">
+  <button id="btn-scroll-top" title="Lên đầu trang">⬆</button>
+  <button id="btn-scroll-bottom" title="Xuống cuối trang">⬇</button>
+</div>
   <?php include "phantrang.php"; ?>
 </main>
-
 <footer class="footer">
   <div class="container">© <?php echo date("Y"); ?> Shop Đồ Cũ</div>
 </footer>
@@ -272,5 +274,29 @@ function checkNewMessages(){
 }
 </script>
 <?php endif; ?>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const btnTop = document.getElementById("btn-scroll-top");
+  const btnBottom = document.getElementById("btn-scroll-bottom");
+
+  if (!btnTop || !btnBottom) return;
+
+  btnTop.onclick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  btnBottom.onclick = () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+
+  window.addEventListener("scroll", () => {
+    const scrollTop = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+
+    btnTop.style.display = scrollTop > 300 ? "flex" : "none";
+    btnBottom.style.display = scrollTop < maxScroll - 300 ? "flex" : "none";
+  });
+});
+</script>
 </body>
 </html>

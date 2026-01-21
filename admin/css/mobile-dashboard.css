@@ -160,153 +160,174 @@
     flex: 0 0 100% !important;
   }
 }
-@media (max-width: 768px) {
-
-  /* TABLE CUỘN NGANG */
-  .mobile-table {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  table {
-    min-width: 900px;
-  }
-
-  /* CHỮ TO – DỄ ĐỌC */
-  table th,
-  table td {
-    font-size: 15px;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-
-  /* NÚT BẤM TO HƠN */
-  table .btn {
-    font-size: 14px;
-    padding: 6px 10px;
-    margin: 2px 0;
-  }
-}
 
 /* =========================
-   USER LIST – MOBILE
+   USER LIST – MOBILE FINAL
    ========================= */
 @media (max-width: 768px) {
 
-  /* ===== HEADER TÊN CỘT ===== */
-  .mobile-column-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    margin-bottom: 6px;
-    background: #ffffff;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
-  }
-
-  .mobile-column-header span:nth-child(1) { min-width: 28px; }
-  .mobile-column-header span:nth-child(2) { min-width: 70px; }
-  .mobile-column-header span:nth-child(3) { flex: 1; }
-  .mobile-column-header span:nth-child(4) { min-width: 60px; }
-  .mobile-column-header span:nth-child(5) { min-width: 20px; }
-
-  /* ===== TABLE RESET ===== */
-  .mobile-user-table {
-    overflow-x: hidden;
-    width: 100%;
-  }
-
-  .mobile-user-table table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 6px;
-  }
-
+  /* ===== ẨN THEAD DESKTOP ===== */
   .mobile-user-table thead {
     display: none;
   }
 
-  .mobile-user-table tbody {
-    display: block;
-    width: 100%;
+  /* ===== HEADER MOBILE ===== */
+  .mobile-column-header {
+    display: grid;
+    grid-template-columns: 44px 100px 1fr 80px;
+    align-items: center;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    text-align: center;
   }
 
   /* ===== USER ROW ===== */
   .mobile-user-table tr.user-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 44px 100px 1fr 80px;
     align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 6px;
+
+    padding: 12px;
+    margin-bottom: 6px;
+
     background: #f2f3f7;
-    border-radius: 12px;
-    width: 100%;
+    border-radius: 14px;
   }
 
+  /* Reset TD */
   .mobile-user-table tr.user-row td {
     display: none;
     padding: 0;
     border: none;
   }
 
+  /* ===== ID ===== */
   .mobile-user-table tr.user-row td:nth-child(1) {
     display: block;
-    font-size: 12px;
-    min-width: 28px;
-    color: #888;
+    text-align: center;
+    font-size: 13px;
+    color: #777;
   }
 
+  /* ===== TRẠNG THÁI ===== */
   .mobile-user-table tr.user-row td:nth-child(2) {
     display: block;
+    text-align: center;
   }
 
+  /* ===== TÊN (HIỆN ĐỦ HƠN) ===== */
   .mobile-user-table tr.user-row td:nth-child(3) {
     display: block;
-    flex: 1;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #333;
+
+    white-space: normal;       /* ✅ cho xuống dòng */
+    overflow: visible;
+    line-height: 1.3;
   }
 
+  /* ===== VAI TRÒ ===== */
   .mobile-user-table tr.user-row td:nth-child(5) {
     display: block;
-    font-size: 12px;
-    color: #666;
+    text-align: center;        /* ✅ căn giữa */
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
   }
 
-  .mobile-user-table tr.user-row td:nth-child(8) {
-    display: block;
-  }
-
-  /* ===== DETAIL ===== */
+  /* ===== DETAIL (NẾU CÒN DÙNG) ===== */
   .mobile-user-table tr.user-detail {
     display: none;
-    width: 100%;
   }
 
   .mobile-user-table tr.user-detail td {
     display: block;
     background: #fafbff;
     padding: 12px;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 14px 14px;
     font-size: 13px;
-    word-break: break-word;
   }
 
+  /* ===== ẨN ACTION DESKTOP ===== */
   .desktop-actions {
-    display: none;
+    display: none !important;
   }
 }
 
 /* =========================
-   DESKTOP
+   DESKTOP – GIỮ NGUYÊN TABLE
    ========================= */
 @media (min-width: 769px) {
+
   .mobile-column-header {
     display: none;
   }
+
+  .mobile-user-table tr {
+    display: table-row;
+  }
+
+  .mobile-user-table td,
+  .mobile-user-table th {
+    display: table-cell;
+    vertical-align: middle;
+  }
 }
+/* =========================
+   FORCE DESKTOP FIX (ANTI BUG)
+   ========================= */
+@media (min-width: 769px) {
+
+  /* ❌ ẨN HOÀN TOÀN HEADER MOBILE */
+  .mobile-column-header {
+    display: none !important;
+  }
+
+  /* ✅ TRẢ TABLE VỀ ĐÚNG CHUẨN */
+  .mobile-user-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .mobile-user-table tr {
+    display: table-row !important;
+  }
+
+  .mobile-user-table th,
+  .mobile-user-table td {
+    display: table-cell !important;
+    white-space: normal;
+    vertical-align: middle;
+  }
+
+  /* ❌ TẮT GRID MOBILE */
+  .mobile-user-table tr.user-row {
+    display: table-row !important;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  /* ❌ TẮT DETAIL MOBILE */
+  .mobile-user-table tr.user-detail {
+    display: none !important;
+  }
+
+  /* ✅ HÀNH ĐỘNG DESKTOP */
+  .desktop-actions {
+    display: flex !important;
+    gap: 6px;
+  }
+}
+

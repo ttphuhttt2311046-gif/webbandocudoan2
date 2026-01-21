@@ -117,7 +117,6 @@ FROM sanpham s
             <th>Người bán</th>
             <th>Hành động</th>
             <th>Giảm giá</th>
-			<th>Sự kiện</th>
         </tr>
 
         <?php if ($res && $res->num_rows > 0): ?>
@@ -157,32 +156,8 @@ FROM sanpham s
                             <button onclick="toggleProduct(<?= $p['maSanPham'] ?>,'ẩn')" class="btn btn-hide">Ẩn</button>
                         <?php endif; ?>
                         <button onclick="deleteProduct(<?= $p['maSanPham'] ?>)" class="btn btn-del">Xóa</button>
-                        <button 
- onclick="toggleEvent(<?= $p['maSanPham'] ?>)" 
- class="btn btn-warning">
- <?= intval($p['tuChoiSuKien']) ? 'Cho tham gia sale' : 'Từ chối sale' ?>
-</button>
                     </td>
-                    <td>
-    <?php if (intval($p['giamGia']) > 0): ?>
-        <span style="color:red;font-weight:bold">
-            -<?= intval($p['giamGia']) ?>%
-        </span>
-    <?php else: ?>
-        —
-    <?php endif; ?>
-</td>
-
-<td>
-    <?php if (intval($p['tuChoiSuKien']) === 1): ?>
-        <span style="color:#888">Từ chối</span>
-    <?php else: ?>
-        <span style="color:green">Tham gia</span>
-    <?php endif; ?>
-</td>
-
                 </tr>
-
             <?php endwhile; ?>
         <?php else: ?>
             <tr><td colspan="8">Không có sản phẩm nào.</td></tr>

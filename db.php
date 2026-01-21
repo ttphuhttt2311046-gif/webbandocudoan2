@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "bandocunew";
+$db   = "bandocu";
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {

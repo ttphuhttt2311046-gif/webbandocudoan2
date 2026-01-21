@@ -1,0 +1,316 @@
+- index.php
+    cắt đoạn này 
+    const btnTop = document.getElementById("btn-scroll-top");
+const btnBottom = document.getElementById("btn-scroll-bottom");
+
+btnTop.onclick = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+btnBottom.onclick = () => {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+};
+
+window.addEventListener("scroll", () => {
+  const scrollTop = window.scrollY;
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+
+  btnTop.style.display = scrollTop > 300 ? "flex" : "none";
+  btnBottom.style.display = scrollTop < maxScroll - 300 ? "flex" : "none";
+});
+    + dán đoạn này trước </body>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+  const btnTop = document.getElementById("btn-scroll-top");
+  const btnBottom = document.getElementById("btn-scroll-bottom");
+
+  if (!btnTop || !btnBottom) return;
+
+  btnTop.onclick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  btnBottom.onclick = () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  };
+
+  window.addEventListener("scroll", () => {
+    const scrollTop = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+
+    btnTop.style.display = scrollTop > 300 ? "flex" : "none";
+    btnBottom.style.display = scrollTop < maxScroll - 300 ? "flex" : "none";
+  });
+});
+</script>
+    + Dán đoạn này dưới </div> trên <?php include "phantrang.php"; ?>
+    <!-- ===== SCROLL BUTTONS ===== -->
+<div class="scroll-buttons">
+  <button id="btn-scroll-top" title="Lên đầu trang">⬆</button>
+  <button id="btn-scroll-bottom" title="Xuống cuối trang">⬇</button>
+</div>
+- style.css 
+    + đoạn này để cuối 
+    /* ================= SCROLL TOP / BOTTOM BUTTON ================= */
+.scroll-buttons {
+  position: fixed;
+  right: 20px;
+  bottom: 100px;            /* tránh đè nút chat */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9998;
+}
+
+.scroll-buttons button {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: #6c63ff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+
+  display: none;            /* JS sẽ bật */
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.scroll-buttons button:hover {
+  background: #5146d8;
+  transform: scale(1.1);
+}
+
+/* MOBILE: đẩy lên cao hơn */
+@media (max-width: 600px) {
+  .scroll-buttons {
+    right: 14px;
+    bottom: 90px;
+  }
+
+  .scroll-buttons button {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+}
+.banner-img1 {
+  width: 100%;
+  overflow: hidden;
+}
+
+.banner-slider {
+  display: flex;
+  gap: 10px;
+}
+
+.banner-slider img {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .banner-slider img {
+    max-height: 200px;
+    border-radius: 8px;
+  }
+}
+
+- chạy cái này trong phpAdmin           hinh → đường dẫn ảnh link → URL khi click trangthai → 1 = hiện, 0 = ẩn thu_tu → sắp xếp banner
+CREATE TABLE banner (                             
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    hinh VARCHAR(255) NOT NULL,
+    link VARCHAR(255) DEFAULT NULL,
+    trangthai TINYINT DEFAULT 1,
+    thu_tu INT DEFAULT 0,
+    ngaytao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+- tạo thư mục mới uploads/banner cho kho dình tới img sản phẩm cho dễ
+- dashboard.php
+  + chỗ sidebar <li class="nav-item"><a class="nav-link load-page" data-page="banner.php" href="#"><i class="fas fa-images"></i><span>Quản lý Banner</span>
+- thêm admin/banner.php
+<?php
+session_start();
+include "../db.php";
+
+/* ======================
+   AJAX HANDLER
+====================== */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+
+    // THÊM BANNER
+    if (isset($_POST['them_banner'])) {
+
+        $uploadDir = __DIR__ . "/../assets/uploads/banner/";
+        $dbPath    = "assets/uploads/banner/";
+
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        if (!isset($_FILES['hinh']) || $_FILES['hinh']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['status'=>'error','msg'=>'Upload lỗi']); exit;
+        }
+
+        $filename = time().'_'.basename($_FILES['hinh']['name']);
+        $fullPath = $uploadDir.$filename;
+        $savePath = $dbPath.$filename;
+
+        if (!move_uploaded_file($_FILES['hinh']['tmp_name'], $fullPath)) {
+            echo json_encode(['status'=>'error','msg'=>'Không lưu file']); exit;
+        }
+
+        $link   = trim($_POST['link'] ?? '');
+        $thu_tu = intval($_POST['thu_tu'] ?? 0);
+
+        $stmt = $conn->prepare(
+            "INSERT INTO banner (hinh, link, thu_tu, trangthai)
+             VALUES (?, ?, ?, 1)"
+        );
+        $stmt->bind_param("ssi", $savePath, $link, $thu_tu);
+        $stmt->execute();
+
+        echo json_encode([
+            'status'=>'ok',
+            'id'=>$stmt->insert_id,
+            'hinh'=>$savePath,
+            'link'=>$link,
+            'thu_tu'=>$thu_tu
+        ]);
+        exit;
+    }
+
+    // XÓA BANNER
+    if (isset($_POST['xoa'])) {
+        $id = intval($_POST['xoa']);
+
+        $res = $conn->query("SELECT hinh FROM banner WHERE id=$id");
+        if ($row = $res->fetch_assoc()) {
+            $file = __DIR__ . "/../" . $row['hinh'];
+            if (file_exists($file)) unlink($file);
+        }
+
+        $conn->query("DELETE FROM banner WHERE id=$id");
+        echo json_encode(['status'=>'ok','id'=>$id]);
+        exit;
+    }
+
+    echo json_encode(['status'=>'invalid']);
+    exit;
+}
+
+/* ======================
+   LẤY DANH SÁCH
+====================== */
+$banners = $conn->query("SELECT * FROM banner ORDER BY thu_tu ASC, id DESC");
+?>
+
+<h4 class="mb-3">Quản lý Banner</h4>
+
+<form id="formBanner" enctype="multipart/form-data" class="card p-3 mb-4">
+    <input type="hidden" name="them_banner" value="1">
+    <input type="file" name="hinh" class="form-control mb-2" required>
+    <input type="text" name="link" class="form-control mb-2" placeholder="Link">
+    <input type="number" name="thu_tu" class="form-control mb-2" value="0">
+    <button class="btn btn-primary">Thêm banner</button>
+</form>
+
+<table class="table table-bordered align-middle" id="tableBanner">
+<thead>
+<tr>
+    <th>Hình</th>
+    <th>Link</th>
+    <th>Thứ tự</th>
+    <th width="80">Xóa</th>
+</tr>
+</thead>
+<tbody>
+<?php while($b = $banners->fetch_assoc()): ?>
+<tr id="banner-<?= $b['id'] ?>">
+    <td><img src="../<?= $b['hinh'] ?>" style="height:60px"></td>
+    <td><?= htmlspecialchars($b['link']) ?></td>
+    <td><?= $b['thu_tu'] ?></td>
+    <td class="text-center">
+        <button class="btn btn-danger btn-sm"
+                onclick="xoaBanner(<?= $b['id'] ?>)">
+            Xóa
+        </button>
+    </td>
+</tr>
+<?php endwhile; ?>
+</tbody>
+</table>
+
+<script>
+document.getElementById('formBanner').addEventListener('submit', function(e){
+    e.preventDefault();
+    fetch('banner.php', {
+        method: 'POST',
+        body: new FormData(this)
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        if(d.status!=='ok') return alert(d.msg);
+
+        const tr = document.createElement('tr');
+        tr.id = 'banner-'+d.id;
+        tr.innerHTML = `
+            <td><img src="../${d.hinh}" style="height:60px"></td>
+            <td>${d.link}</td>
+            <td>${d.thu_tu}</td>
+            <td class="text-center">
+                <button class="btn btn-danger btn-sm"
+                        onclick="xoaBanner(${d.id})">Xóa</button>
+            </td>
+        `;
+        document.querySelector('#tableBanner tbody').prepend(tr);
+        this.reset();
+    });
+});
+
+function xoaBanner(id){
+    if(!confirm('Xóa banner này?')) return;
+
+    const fd = new FormData();
+    fd.append('xoa', id);
+
+    fetch('banner.php', {
+        method: 'POST',
+        body: fd
+    })
+    .then(r=>r.json())
+    .then(d=>{
+        if(d.status==='ok'){
+            const row = document.getElementById('banner-'+d.id);
+            if(row) row.remove();
+        }
+    });
+}
+</script>
+
+- index.php
+  + xóa banner cứng <div class="banner-slider">
+                    <img src="...">
+                    </div> 
+            thay bằng
+  <div class="banner-img1">
+  <div class="banner-slider">
+    <?php
+    $banners = $conn->query("SELECT * FROM banner WHERE trangthai=1 ORDER BY thu_tu ASC");
+    while ($b = $banners->fetch_assoc()):
+    ?>
+      <a href="<?= htmlspecialchars($b['link']) ?>" target="_blank">
+        <img src="<?= $b['hinh'] ?>" alt="Banner">
+      </a>
+    <?php endwhile; ?>
+  </div>
+</div>
+
